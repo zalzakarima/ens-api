@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/client.css') }}" />
+  <title>ENS Monitoring Center</title>
+  <style>
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .form-group label {
+      margin-bottom: 5px;
+    }
+    .form-group select, .form-group input {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div style="position: absolute; top: 15px; right: 100px; text-align: right">
+    <p style="display: inline; line-height: 30px">{{ username }}님 <br /></p>
+    <p style="display: inline">Login :</p>
+  </div>
+  <div style="position: absolute; top: 20px; right: 1%">
+    <a href="/powerpred">
+      <img src="static/images/img_usr.jpg" style="width: 40px; margin-right: 10px" alt="UserInfo" />
+    </a>
+    <a href="/auth/logout">
+      <img src="static/images/img_logout.jpg" style="width: 30px" alt="logout" />
+    </a>
+  </div>
+
+  <div class="common-header">
+    <a href="/client-menu/{{sCode}}" class="common-title">예측대비 발전현황</a>
+  </div>
+  
+  <main class="watch-2" id="content">
+    <div class="container">
+      <div class="table-wrap">
+        <table class="table">
+          <caption>
+            <div class="form-group">
+              <label for="datee">Select Date:</label>
+              <input type="date" id="datee" name="trip-start" min="2023-01-01" max="2025-12-31" />
+            </div>
+            <div class="form-group">
+              <label for="site">Select Site:</label>
+              <select class="form-control" id="site">
+                {% for site in ['717800001','717800002','717800003','717800004','717800005','717800006','717800007', '717800008', '717800009', '717800010'] %}
+                <option value="{{ site }}">{{ site }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="model">Select Model:</label>
+              <select class="form-control" id="model">
+                {% for model in ['BiLSTM', 'BiLSTM_SingleDense', 'BiLSTM_MultiDense', 'LSTM', 'ConvLSTM', 'RNN'] %}
+                <option value="{{ model }}">{{ model }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="modeltime">Select Model Time:</label>
+              <select class="form-control" id="modeltime">
+                {% for time in ['10', '12', '16'] %}
+                <option value="{{ time }}">{{ time }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </caption>
+          <thead>
+            <tr>
+              <th>시간</th>
+              <th>05시</th>
+              <th>06시</th>
+              <th>07시</th>
+              <th>08시</th>
+              <th>09시</th>
+              <th>10시</th>
+              <th>11시</th>
+              <th>12시</th>
+              <th>13시</th>
+              <th>14시</th>
+              <th>15시</th>
+              <th>16시</th>
+              <th>17시</th>
+              <th>18시</th>
+              <th>19시</th>
+              <th>총발전량</th>
+              <th>오차율</th>
+            </tr>
+          </thead>
+          <tbody id="powerData"></tbody>
+        </table>
+      </div>
+      <div class="graph">
+        <figure>
+          <canvas id="myChart"></canvas>
+        </figure>
+      </div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
+  <script>
+    var predictionPower = [],
+      truePower = [];
+
+    var datee = document.getElementById("datee");
+    datee.valueAsDate = new Date();
+
+    const config1 = {
+      type: "bar",
+      data: {
+        labels: ["05시", "06시", "07시", "08시", "09시", "10시", "11시", "12시", "13시", "14시", "15시", "16시", "17시", "18시", "19시"],
+        datasets: [
+          {
+            label: "예측",
+            fill: false,
+            hidden: false,
+            data: Array(15).fill(0),
+            backgroundColor: ["rgb(41, 128, 185)"],
+            borderWidth: 1,
+          },
+          {
+            label: "실측",
+            fill: false,
+            hidden: false,
+            data: Array(15).fill(0),
+            backgroundColor: ["rgb(26, 188, 156)"],
+            borderWidth: 1,
+          },
+        ],
+      },
+    };
+
+    async function plotChart() {
+      await getPlotData();
+
+      var context = document.getElementById("myChart").getContext("2d");
+
+      var chartExist = Chart.getChart("myChart");
+      if (chartExist) chartExist.destroy();
+
+      new Chart(context, config1);
+    }
+
+    document.getElementById("model").onchange = plotChart;
+    document.getElementById("datee").onchange = plotChart;
+    document.getElementById("site").onchange = plotChart;
+    document.getElementById("modeltime").onchange = plotChart;
+
+    plotChart();
+
+    async function getPlotData() {
+      const apiUrl = `${window.origin}/data/api/powerpred`;
+
+      var modelElement = document.getElementById("model");
+      var siteElement = document.getElementById("site");
+      var modelTimeElement = document.getElementById("modeltime");
+      var today = new Date(datee.value);
+
+      var dateNow = today.toISOString().split('T')[0].replace(/-/g, '');
+
+      var your_data = {
+        date: dateNow,
+        sitecode: siteElement.value,
+        model: modelElement.options[modelElement.selectedIndex].text,
+        modeltime: modelTimeElement.value,
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify(your_data),
+        cache: "no-cache",
+        headers: new Headers({
+          "content-type": "application/json",
+        }),
+      });
+      const barChatData = await response.json();
+
+      const obj = JSON.parse(barChatData.data);
+
+      const table = document.getElementById("powerData");
+
+      while (table.rows.length > 0) {
+        table.deleteRow(0);
+      }
+
+      let rowPred = table.insertRow();
+      let rowTrue = table.insertRow();
+      let counter = 0;
+
+      Object.keys(obj.pred).forEach((element) => {
+        let cell = rowPred.insertCell(counter);
+        cell.innerHTML = obj.pred[element];
+        counter++;
+      });
+
+      counter = 0;
+
+      Object.keys(obj.true).forEach((element2) => {
+        let cell2 = rowTrue.insertCell(counter);
+        cell2.innerHTML = obj.true[element2];
+        counter++;
+      });
+
+      var predict = Object.fromEntries(Object.entries(obj.pred).filter(([key]) => key.includes("hr")));
+      var truepow = Object.fromEntries(Object.entries(obj.true).filter(([key]) => key.includes("hr")));
+
+      config1.data.datasets[0].data = Object.values(predict);
+      config1.data.datasets[1].data = Object.values(truepow);
+    }
+  </script>
+</body>
+</html>

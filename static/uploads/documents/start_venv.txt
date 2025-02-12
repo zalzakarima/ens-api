@@ -1,0 +1,2 @@
+ .\virtual_env\tf1\Scripts\activate
+  .\virtual_env\tf2\Scripts\activate

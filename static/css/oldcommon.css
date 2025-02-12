@@ -1,0 +1,91 @@
+.box {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.logoBox {
+    position: relative;
+}
+
+.logoBox:after {
+    content: "";
+    /* background: url("/static/images/kmu_logo.jpg") center / 320px no-repeat; */
+    background-image: url(/static/images/lab_logo.jpg),
+        url(/static/images/kmu_logo.jpg);
+    background-repeat: no-repeat, no-repeat;
+    /* background-size: 370px, 320px; */
+    background-size: 14vw, 12vw;
+    background-position: top 20% right 20%, top right;
+    position: absolute;
+    width: 100%;
+    height: 500px;
+    /* width: 320px;
+    height: 230px; */
+    margin: auto;
+    top: 0;
+    /* left: 0; */
+    /* bottom: 0; */
+    right: 0;
+    opacity: 0.8;
+}
+.imageblock {
+    position: relative;
+}
+.imageblock:after {
+    content: "";
+
+    background: url("/static/images/kmu_logo.jpg") center / 320px no-repeat;
+    /* background: url(https://tistory2.daumcdn.net/tistory/1953761/skin/images/bssow-watermark_small.png)
+        center / 320px no-repeat; */
+    position: absolute;
+    width: 320px;
+    height: 230px;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    opacity: 0.4;
+}
+
+@media screen and (max-width: 992px) {
+    .logoBox:after {
+        content: "";
+        /* background: url("/static/images/kmu_logo.jpg") center / 320px no-repeat; */
+        background-image: url(/static/images/lab_logo.jpg),
+            url(/static/images/kmu_logo.jpg);
+        background-repeat: no-repeat, no-repeat;
+        background-size: 230px, 200px;
+        /* background-position: center, center; */
+        background-position: top 15% left 5%, top right;
+        position: absolute;
+        width: 100%;
+        height: 500px;
+        /* width: 320px;
+        height: 230px; */
+        margin: auto;
+        top: 0;
+        /* left: 0; */
+        /* bottom: 0; */
+        right: 0;
+        opacity: 0.45;
+    }
+
+    .imageblock:after {
+        content: "";
+
+        background: url("/static/images/kmu_logo.jpg") center / 200px no-repeat;
+        /* background: url(https://tistory2.daumcdn.net/tistory/1953761/skin/images/bssow-watermark_small.png)
+            center / 320px no-repeat; */
+        position: absolute;
+        width: 320px;
+        height: 230px;
+        margin: auto;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        opacity: 0.4;
+    }
+}

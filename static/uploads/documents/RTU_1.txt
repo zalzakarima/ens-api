@@ -1,0 +1,11 @@
+RTU2020 Remote Terminal Unit
+184.0 x 98.5 x140.5
+700
+0.3
+CE Certificate, EN61010-1:1993;CE
+
+
+
+
+
+https://www.hanang-instrument.com/images/stories/pdf/Honeywell/Control-System/rtu2020%20specs.pdf
