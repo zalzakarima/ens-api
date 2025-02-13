@@ -381,7 +381,7 @@ def mainn():
     plot_predictions(predictions_results)
 
 # Scheduling the time to set predict time in 00:30 AM
-@scheduler.task('cron', id='prediction_10', minute='07', hour='12')
+@scheduler.task('cron', id='prediction_10', minute='25', hour='0')
 def prediction_at_12():
     mainn()
 
@@ -459,6 +459,7 @@ class getPrediction(Resource):
                         "hr7": data2[2],
                         "hr8": data2[3],
                         "hr9": data2[4],
+                        
                         "hr10": data2[5],
                         "hr11": data2[6],
                         "hr12": data2[7],
