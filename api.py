@@ -229,7 +229,7 @@ def load_model_and_metadata(model_type, models_dir="saved_models_new"):
     model_path = metadata["model_path"]
     
     # Load the model
-    model = tf.keras.models.load_model(model_path)
+    model = tf.keras.models.load_model(f"{models_dir}/{model_type}.h5")
     print(f"{model_type} model loaded successfully.")
     
     return model, scaler
@@ -376,12 +376,12 @@ def mainn():
     plot_predictions(predictions_results)
 
     # Save the 24-hour predictions for each model
-    save_predictions(predictions_results, save_dir="model_predictions")
+    save_predictions(predictions_results, save_dir="model_predictions") 
     save_predictions_database(predictions_results, power_sites, end_date, model_times)
     plot_predictions(predictions_results)
 
 # Scheduling the time to set predict time in 00:30 AM
-@scheduler.task('cron', id='prediction_10', minute='25', hour='0')
+@scheduler.task('cron', id='prediction_10', minute='07', hour='12')
 def prediction_at_12():
     mainn()
 
